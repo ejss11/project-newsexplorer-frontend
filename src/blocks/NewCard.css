@@ -1,0 +1,256 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  height: 576px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  list-style: none;
+}
+
+.card__image {
+  display: inline-grid;
+  position: relative;
+  width: 400px;
+  height: 272px;
+  border-radius: 10px 10px 0 0;
+}
+
+.card__image-photo {
+  width: 400px;
+  height: 272px;
+  list-style-type: none;
+  border-radius: 10px 10px 0 0;
+  object-fit: cover;
+}
+
+.card__image-button_container {
+  position: absolute;
+  display: flex;
+}
+
+.card__image-text_overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  height: 40px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  margin: 24px;
+}
+
+.card__image-text_classification {
+  width: 155px;
+  height: 24px;
+  font-family: "Roboto";
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  text-align: center;
+}
+
+.card__image-button {
+  display: flex;
+  background-color: #ffffff;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  position: absolute;
+  object-fit: contain;
+  margin: 24px 24px 208px 336px;
+  z-index: 1;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  border: none;
+}
+
+.card__image-delete {
+  width: 24px;
+  height: 24px;
+  justify-content: center;
+}
+
+.card__image-delete_hidden {
+  visibility: hidden;
+}
+
+.card__image-saved {
+  width: 24px;
+  height: 24px;
+  justify-content: center;
+}
+
+.card__image-saved_hidden {
+  visibility: hidden;
+}
+
+.card__content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  justify-content: flex-start;
+  list-style-type: none;
+  margin: 0;
+}
+
+.card__content-title {
+  font-family: "Roboto Slab";
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 30px;
+  text-align: left;
+  color: #000;
+  margin: 8px 24px 12px 24px;
+  display: -webkit-box;
+  line-clamp: 1;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 365px;
+  height: 92px;
+}
+
+.card__content-date {
+  margin: 20px 0 0 24px;
+  width: 197.69px;
+  height: 24px;
+  font-family: "Source Sans Pro";
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: left;
+  color: #b6bcbf;
+}
+
+.card__content-description {
+  width: 352px;
+  height: 88px;
+  font-family: "Roboto";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  color: #1a1b22;
+  margin: 0 24px 12px 24px;
+  display: -webkit-box;
+  line-clamp: 1;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card__content-source {
+  width: 200px;
+  height: 20px;
+  font-family: "Roboto Slab";
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  letter-spacing: 0.4000000059604645px;
+  text-align: left;
+  color: #b6bcbf;
+  margin: 0 0 24px 24px;
+}
+
+.card__image-tooltip {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  border-radius: 5px;
+
+  /* Posicionamos el tooltip */
+  position: absolute;
+  top: -40px; /* Ajusta esta distancia según el diseño */
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* Animación */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+
+  /* Sombra opcional */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card__image-button_container:hover .card__image-tooltip:hover {
+  visibility: visible;
+  opacity: 1;
+}
+
+@media screen and (max-width: 768px) {
+  .card {
+    width: 224px;
+    height: 420px;
+  }
+
+  .card__image {
+    display: inline-grid;
+    position: relative;
+    width: 224px;
+    height: 150px;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .card__image-photo {
+    width: 100%;
+    height: 150px;
+  }
+
+  .card__image-button {
+    margin: 8px 8px 102px 176px;
+  }
+
+  .card__content-date {
+    width: 182.34px;
+    height: 24px;
+    font-size: 18px;
+    margin: 16px 25.82px 0 15.84px;
+  }
+
+  .card__content-title {
+    width: 192px;
+    height: 96px;
+    font-size: 22px;
+    line-height: 24px;
+    margin: 12px 16px 12px 16px;
+    display: -webkit-box;
+    line-clamp: 1;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card__content-description {
+    width: 192px;
+    height: 66px;
+    font-size: 16px;
+    line-height: 22px;
+    margin: 0 16px 8px 16px;
+    display: -webkit-box;
+    line-clamp: 1;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card__content-source {
+    width: 192px;
+    height: 20px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .card__image-text_overlay {
+    margin: 8px 85px 0 8px;
+  }
+}
