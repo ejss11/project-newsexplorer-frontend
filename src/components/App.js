@@ -139,6 +139,7 @@ function App() {
             element={
               <ProtectedRoute isLoggedIn={isLoggedIn}>
                 <SavedNewsHeader
+                  userName={currentUser}
                   isLoggedIn={isLoggedIn}
                   onLoggedOut={handleLogout}
                   onLoginClick={() => setIsLoginOpen(true)}

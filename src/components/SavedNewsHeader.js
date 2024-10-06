@@ -6,7 +6,6 @@ import "../blocks/SavedNewsHeader.css";
 
 function SavedNewsHeader({
   userName = "Eduardo Silva",
-  keywords = ["Naturaleza", "Yellowstone", "Musica"],
   isLoggedIn,
   onLoggedOut,
   onLoginClick,
@@ -15,8 +14,6 @@ function SavedNewsHeader({
   const [savedArticles, setSavedArticles] = useState([]);
 
   const savedArticlesCount = 5; //cantidad de noticias que puede guardar el usuario
-  const keywordsDisplay = keywords.slice(0, 2).join(", "); // Muestra las dos primeras palabras clave
-  const additionalKeywordsCount = keywords.length - 2; // Muestra cuántas palabras clave más hay
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -28,6 +25,9 @@ function SavedNewsHeader({
         console.log(err);
       });
   }, []);
+
+  const keywordsDisplay = savedArticles.keywords.slice(0, 2).join(", "); // Muestra las dos primeras palabras clave
+  const additionalKeywordsCount = savedArticles.keywords.length - 2; // Muestra cuántas palabras clave más hay
 
   const handleDeleteArticle = (articleId) => {
     const token = localStorage.getItem("token");
