@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import "../blocks/App.css";
 import Main from "./main";
 import Footer from "./Footer";
@@ -9,7 +9,7 @@ import SavedNewsHeader from "./SavedNewsHeader";
 import ImagePopup from "./imagePopup";
 import { getNews, fetchNews } from "../utils/ThirdPartyApi";
 import CurrentUserContext from "../contexts/CurrentUserContext";
-import { getUserInfo } from "../utils/auth";
+import { getUserInfo } from "../utils/MainApi";
 import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
@@ -45,11 +45,13 @@ function App() {
     } else {
       fetchData();
     }
+
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     if (searchTerm) {
-      setIsLoading(true); // Inicia el loader
+      setIsLoading(true);
       fetchNews(searchTerm)
         .then((data) => {
           setArticles(data);
@@ -62,7 +64,6 @@ function App() {
     }
   }, [searchTerm]);
 
-  // almacenar los datos en el localStorage y leerlos cuando el usuario vuelve a la página
   useEffect(() => {
     const savedArticles = JSON.parse(localStorage.getItem("articles"));
     if (savedArticles) {
@@ -76,44 +77,42 @@ function App() {
     }
   }, [articles]);
 
-  if (error) {
-    return <div>{error}</div>;
-  }
-  // Obtener el usuario y su token
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      getUserInfo(token)
-        .then((data) => {
-          setCurrentUser(data);
-          setIsLoggedIn(true);
-        })
-        .catch((err) => {
-          console.log(err);
-          setIsLoggedIn(false);
-        });
-    }
+
+    getUserInfo(token)
+      .then((data) => {
+        setCurrentUser(data);
+        setIsLoggedIn(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsLoggedIn(false);
+      });
   }, []);
-  // Cerrar la Sesion...
+
   const handleLogout = () => {
     localStorage.removeItem("jwt");
-    setIsLoggedIn(false); // Maneja el cierre de sesión
-    window.location.reload(); // Recargar la página para actualizar el estado
+    setIsLoggedIn(false);
+    window.location.reload();
     navigate("/");
   };
-  // Cerrar todos los Popup...
+
   const handleCloseAllsPopup = () => {
     setIsRegisterOpen(false);
     setIsLoggedIn(false);
     setIsLoginOpen(false);
     setIsImagenPopupOpen(false);
   };
-  // Funcion para abrir la imagen del Articulo
+
   const handleCardClick = (card) => {
     setSelectedCard(card);
     setIsImagenPopupOpen(true);
   };
 
+  if (error) {
+    return <div>{error}</div>;
+  }
   return (
     <>
       <CurrentUserContext.Provider value={currentUser}>
@@ -159,6 +158,7 @@ function App() {
                   setIsLoginOpen(false);
                   setIsRegisterOpen(true);
                 }}
+                onSetIsLoggedIn={setIsLoggedIn}
               />
             }
           />
@@ -175,12 +175,7 @@ function App() {
           {/* Redirige cualquier otra ruta a / si no está autenticado */}
           <Route
             path="/protected"
-            element={
-              <ProtectedRoute
-                component={ProtectedComponent}
-                isLoggedIn={isLoggedIn}
-              />
-            }
+            element={<ProtectedRoute isLoggedIn={isLoggedIn}></ProtectedRoute>}
           />
         </Routes>
         <Footer />

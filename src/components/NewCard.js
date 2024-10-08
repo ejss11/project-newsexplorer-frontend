@@ -30,9 +30,8 @@ function NewsCard({ articleData, onArticleClick, onArticleDelete }) {
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = new Intl.DateTimeFormat("es-ES", options).format(date);
 
-  console.log(formattedDate); // "1 de octubre de 2024"
+  console.log(formattedDate);
 
-  // Verifica si la ruta actual es "/saved-news"
   const isSavedNewsPage = location.pathname === "/saved-news";
   const [isSavedArticle, setSavedArticle] = useState(false);
 
@@ -45,17 +44,15 @@ function NewsCard({ articleData, onArticleClick, onArticleDelete }) {
   }`;
 
   const cardSavedButtonClassName = `card__image-saved ${
-    isOwn ? "card__image-saved" : "card__image-saved_hidden"
+    isOwn ? "card__image-saved" : "card__image-saved"
   }`;
 
   const cardsSavedIcon = `${isSavedArticle ? iconSavedBlue : iconSaved}`;
 
-  //cuando haga click en el articulo
   const handleClick = () => {
     onArticleClick(articleData);
   };
 
-  //cuando haga click en guardar articulo
   const handleSavedClick = () => {
     setSavedArticle(true);
     onArticleClick(articleData);
@@ -99,13 +96,10 @@ function NewsCard({ articleData, onArticleClick, onArticleDelete }) {
         ) : (
           <>
             <div className="card__image-button_container">
-              <button
-                className="card__image-button"
-                onClick={handleDeleteClick}
-              >
+              <button className="card__image-button" onClick={handleSavedClick}>
                 <img
                   className={cardSavedButtonClassName}
-                  src={iconSaved}
+                  src={cardsSavedIcon}
                   alt="Guardar Articulo"
                 />
               </button>

@@ -2,17 +2,17 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 1440px;
+  width: 100%;
   height: auto;
 }
 
 .saved-news__content {
-  width: 1440px;
+  width: 100%;
   height: auto;
 }
 
 .saved-news__content-title {
-  width: 1440px;
+  width: 100%;
   height: 294px;
   margin-top: 87px;
   background-color: #fff;

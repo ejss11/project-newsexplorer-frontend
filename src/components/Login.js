@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import PopupWithForm from "./PopupWithForm";
-import { authorize } from "../utils/auth";
+import { authorize } from "../utils/MainApi";
 import { emailPattern } from "../utils/constants";
 import "../blocks/popup.css";
 import "../blocks/login.css";
 
-function Login({ isOpen, onClose, isLoading, onOpenPopupRegister }) {
+function Login({
+  isOpen,
+  onClose,
+  isLoading,
+  onOpenPopupRegister,
+  onSetIsLoggedIn,
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
@@ -22,7 +28,7 @@ function Login({ isOpen, onClose, isLoading, onOpenPopupRegister }) {
       authorize(email, password)
         .then((data) => {
           localStorage.setItem("token", data.token);
-          setIsLoggedIn(true);
+          onSetIsLoggedIn(true);
           onClose();
         })
         .catch((err) => {

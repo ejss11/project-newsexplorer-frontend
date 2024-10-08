@@ -1,6 +1,5 @@
 const BASE_URL = "https://api.eduardo.desarrollointerno.com";
 
-// Función para registrar un nuevo usuario
 export const register = (email, password, name) => {
   return fetch(`${BASE_URL}/signup`, {
     method: "POST",
@@ -14,7 +13,6 @@ export const register = (email, password, name) => {
   });
 };
 
-// Función para iniciar sesión
 export const authorize = (email, password) => {
   return fetch(`${BASE_URL}/signin`, {
     method: "POST",
@@ -33,7 +31,6 @@ export const authorize = (email, password) => {
     });
 };
 
-// Función para comprobar la validez del token
 export const checkToken = async () => {
   const token = localStorage.getItem("jwt");
   return fetch(`${BASE_URL}/users/me`, {
@@ -50,7 +47,6 @@ export const checkToken = async () => {
   });
 };
 
-// Obtener datos del usuario
 export const getUserInfo = (token) => {
   return fetch(`${BASE_URL}/users/me`, {
     method: "GET",

@@ -1,70 +1,97 @@
-# Getting Started with Create React App
+# Proyecto de Noticias - React + API
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Este es un proyecto de una aplicación de noticias que permite a los usuarios buscar artículos y guardarlos. Los usuarios pueden registrarse e iniciar sesión para gestionar sus artículos guardados. Se implementan rutas protegidas para usuarios autenticados y se integra una API externa para obtener noticias.
 
-## Available Scripts
+# Tecnologías Utilizadas
 
-In the project directory, you can run:
+Este proyecto está construido con las siguientes tecnologías:
 
-### `npm start`
+- React: Biblioteca de JavaScript para construir interfaces de usuario.
+- React Router: Manejo de las rutas en la aplicación.
+- ESLint: Herramienta para identificar y corregir errores en el código JavaScript.
+- CSS: Estilización de los componentes.
+- JSX: Sintaxis de extensión de JavaScript utilizada en React para definir la estructura de los componentes de la interfaz.
+- API personalizada (Back-end): Manejo de autenticación de usuarios y obtención de datos.
+- LocalStorage: Almacenamiento temporal de datos en el navegador para mejorar la experiencia de usuario.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Cómo ejecutar el proyecto
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# Requisitos previos
 
-### `npm test`
+- Asegúrate de tener las siguientes herramientas instaladas en tu máquina:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+        - Node.js (versión 12 o superior)
+        - npm (Gestor de paquetes que viene con Node.js)
+        - Pasos para ejecutar el proyecto
+        - Clonar el repositorio
 
-### `npm run build`
+- Abre una terminal y clona este repositorio ejecutando:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+        1.- bash
+        2.- Copiar código
+        3.- git clone https://github.com/ejss11/project-newsexplorer-frontend.git
+        4.- Instalar dependencias
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Navega dentro de la carpeta del proyecto y ejecuta el siguiente comando para instalar todas las dependencias del proyecto:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  1.- bash
+  2.- Copiar código
+  3.- cd project-newsexplorer-frontend
+  4.- npm install
+  5.- Configurar las variables de entorno
 
-### `npm run eject`
+- Si el proyecto depende de variables de entorno, crea un archivo .env en la raíz del proyecto con la configuración necesaria para conectarse a la API de tu back-end:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+  1.- env
+  2.- Copiar código
+  3.- REACT_APP_API_URL=https://api.eduardo.desarrollointerno.com/
+  4.- Ejecutar el proyecto
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Para ejecutar el proyecto en modo de desarrollo, ejecuta el siguiente comando:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+  1.- bash
+  2.- Copiar código
+  3.- npm start
+  4.- Luego, abre tu navegador y visita http://localhost:3000 para ver la aplicación en funcionamiento.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Acceso a la página
 
-## Learn More
+- Para acceder a la página y probar las rutas protegidas, utiliza las siguientes credenciales de acceso:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Email: test@example.com
+Password: 123456
+Estos credenciales se pueden utilizar para iniciar sesión en la aplicación. Si necesitas crear nuevas cuentas, puedes usar la funcionalidad de registro.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Estructura del proyecto
 
-### Code Splitting
+- La estructura principal del proyecto es la siguiente:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+bash
+Copiar código
+src/
+│
+├── components/ # Componentes principales de la interfaz de usuario
+│ ├── App.js # Componente raíz de la aplicación
+│ ├── Login.js # Componente de inicio de sesión
+│ ├── Register.js # Componente de registro de usuarios
+│ └── ... # Otros componentes relacionados
+│
+├── utils/ # Utilidades, incluida la integración con la API
+│ └── MainApi.js # Solicitudes al back-end
+│
+├── contexts/ # Contextos de React para compartir datos entre componentes
+├── blocks/ # Archivos de estilos (CSS)
+├── App.css # Estilos principales de la aplicación
+└── index.js # Archivo de entrada principal
 
-### Analyzing the Bundle Size
+# Funcionalidades del proyecto
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- Registro y Autenticación: Los usuarios pueden registrarse en la aplicación e iniciar sesión para acceder a las rutas protegidas.
+- Protección de rutas: Algunas rutas están protegidas y solo son accesibles para los usuarios autenticados.
+- Búsqueda de noticias: Los usuarios pueden buscar noticias relacionadas con una palabra clave utilizando una API externa.
+- Guardado de artículos: Los usuarios autenticados pueden guardar artículos en su lista personal.
+- Manejo de Popups: Interacción con ventanas emergentes para registro, inicio de sesión y detalles de artículos.
 
-### Making a Progressive Web App
+# Comentarios sobre el proyecto
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Este proyecto fue diseñado para poner en práctica el uso de React, junto con la integración de una API personalizada para la autenticación y una API de terceros para la obtención de noticias. El objetivo principal es mejorar la gestión de estado en aplicaciones React y trabajar con rutas protegidas.

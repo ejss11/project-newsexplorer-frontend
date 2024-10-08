@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PopupWithForm from "./PopupWithForm";
 import InfoTooltip from "./InfoTooltip";
 import Preloader from "./Preloader";
-import * as auth from "../utils/auth";
+import * as auth from "../utils/MainApi";
 import { emailPattern } from "../utils/constants";
 import "../blocks/popup.css";
 import "../blocks/register.css";
