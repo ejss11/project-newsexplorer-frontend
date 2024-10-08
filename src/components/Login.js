@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-//import { Link } from "react-router-dom";
 import PopupWithForm from "./PopupWithForm";
+import { authorize } from "../utils/MainApi";
+import { emailPattern } from "../utils/constants";
 import "../blocks/popup.css";
 import "../blocks/login.css";
 
-function Login({ isOpen, onClose, isLoading, onLogin, onOpenPopupRegister }) {
+function Login({
+  isOpen,
+  onClose,
+  isLoading,
+  onOpenPopupRegister,
+  onSetIsLoggedIn,
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
@@ -12,11 +19,23 @@ function Login({ isOpen, onClose, isLoading, onLogin, onOpenPopupRegister }) {
   const [isFormValid, setIsFormValid] = useState(false);
   const [errorMessageEmail, setErrorMessageEmail] = useState("");
   const [errorMessagePass, setErrorMessagePass] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
+
     if (email && password) {
-      onLogin({ email, password }); // LLama a la Función de Login
+      authorize(email, password)
+        .then((data) => {
+          localStorage.setItem("token", data.token);
+          onSetIsLoggedIn(true);
+          onClose();
+        })
+        .catch((err) => {
+          setErrorMessage(
+            "Error de inicio de sesión, por favor verifica tus credenciales."
+          );
+        });
     } else {
       if (!email) setIsEmailValid(false);
       if (!password) setIsPasswordValid(false);
@@ -26,8 +45,9 @@ function Login({ isOpen, onClose, isLoading, onLogin, onOpenPopupRegister }) {
   function handleInputChange(e) {
     const { name, value } = e.target;
     if (name === "email") {
+      //validar email value.includes("@")
       setEmail(value);
-      setIsEmailValid(value.includes("@"));
+      setIsEmailValid(emailPattern.test(value));
       setErrorMessageEmail("Dirección de correo electrónico no válida");
     }
     if (name === "password") {
@@ -48,6 +68,7 @@ function Login({ isOpen, onClose, isLoading, onLogin, onOpenPopupRegister }) {
       onClose={onClose}
       onSubmit={handleSubmit}
     >
+      <div>{errorMessage}</div>
       <label className="form__label-email">Correo electrónico</label>
       <input
         type="email"

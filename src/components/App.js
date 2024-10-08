@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import "../blocks/App.css";
 import Main from "./main";
 import Footer from "./Footer";
@@ -8,19 +8,21 @@ import Register from "./Register";
 import SavedNewsHeader from "./SavedNewsHeader";
 import ImagePopup from "./imagePopup";
 import { getNews, fetchNews } from "../utils/ThirdPartyApi";
+import CurrentUserContext from "../contexts/CurrentUserContext";
+import { getUserInfo } from "../utils/MainApi";
+import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  //const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
-  //const [isSuccess, setIsSuccess] = useState(false);
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
   const [isImagePopupOpen, setIsImagenPopupOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState({});
 
   const navigate = useNavigate();
 
@@ -43,11 +45,13 @@ function App() {
     } else {
       fetchData();
     }
+
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     if (searchTerm) {
-      setIsLoading(true); // Inicia el loader
+      setIsLoading(true);
       fetchNews(searchTerm)
         .then((data) => {
           setArticles(data);
@@ -60,7 +64,6 @@ function App() {
     }
   }, [searchTerm]);
 
-  // almacenar los datos en el localStorage y leerlos cuando el usuario vuelve a la página
   useEffect(() => {
     const savedArticles = JSON.parse(localStorage.getItem("articles"));
     if (savedArticles) {
@@ -74,39 +77,24 @@ function App() {
     }
   }, [articles]);
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-  const handleLogin = (email, password) => {
-    //setIsLoginOpen(true);
-    // Aquí validas las credenciales con una solicitud al servidor
-    if (email === "demo@demo.com" && password === "password123") {
-      //setIsLoggedIn(true); // Autenticación exitosa
-      setIsLoginOpen(false); // Cierra el modal
-    } else {
-      setIsLoggedIn(false);
-      console.error("Credenciales incorrectas");
-    }
-  };
-
-  // Manejar el envío del formulario de búsqueda
-  /* const handleSearch = (searchTerm) => {
-    // Simulación de llamada a API o búsqueda
-    setTimeout(() => {
-      setIsLoading(false); // Detiene el loader después de 2 segundos
-      // Aquí deberías hacer la búsqueda real y actualizar el estado de resultados.
-    }, 2000);
-  }; */
-
-  const handleRegister = () => {
-    //setIsSuccess(true);
-    //setIsInfoTooltipOpen(true);
-  };
+    getUserInfo(token)
+      .then((data) => {
+        setCurrentUser(data);
+        setIsLoggedIn(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsLoggedIn(false);
+      });
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
-    setIsLoggedIn(false); // Maneja el cierre de sesión
+    setIsLoggedIn(false);
+    window.location.reload();
     navigate("/");
   };
 
@@ -122,71 +110,101 @@ function App() {
     setIsImagenPopupOpen(true);
   };
 
+  if (error) {
+    return <div>{error}</div>;
+  }
   return (
     <>
-      <Routes>
-        {/* Ruta para la página principal */}
-        <Route
-          path="/"
-          element={
-            <Main
-              onLoginClickPopup={() => setIsLoginOpen(true)}
-              onSubmit={setSearchTerm}
-              isLoading={isLoading}
-              isLoggedIn={isLoggedIn}
-              onLoggedOut={handleLogout}
-              onDataArticles={articles}
-              onArticleClick={handleCardClick}
-            />
-          }
-        />
-        {/* Ruta para la página de artículos guardados */}
-        <Route
-          path="/saved-news"
-          element={
-            <SavedNewsHeader
-              isLoggedIn={isLoggedIn}
-              onLoggedOut={handleLogout}
-              onLoginClick={() => setIsLoginOpen(true)}
-              onDataArticles={articles}
-              onArticleClick={handleCardClick}
-            ></SavedNewsHeader>
-          }
-        />
-        {/* Redirige cualquier otra ruta a / si no está autenticado */}
-        <Route
-          path="*"
-          element={<Navigate to={isLoggedIn ? "/saved-news" : "/"} />}
-        />
-      </Routes>
-      <Footer />
-      {/*Popup Login */}
+      <CurrentUserContext.Provider value={currentUser}>
+        <Routes>
+          {/* Ruta para la página principal */}
+          <Route
+            path="/"
+            element={
+              <Main
+                onLoginClickPopup={() => setIsLoginOpen(true)}
+                onSubmit={setSearchTerm}
+                isLoading={isLoading}
+                isLoggedIn={isLoggedIn}
+                onLoggedOut={handleLogout}
+                onDataArticles={articles}
+                onArticleClick={handleCardClick}
+              />
+            }
+          />
+          {/* Ruta para la página de artículos guardados */}
+          <Route
+            path="/saved-news"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <SavedNewsHeader
+                  userName={currentUser}
+                  isLoggedIn={isLoggedIn}
+                  onLoggedOut={handleLogout}
+                  onLoginClick={() => setIsLoginOpen(true)}
+                  onArticleClick={handleCardClick}
+                ></SavedNewsHeader>
+              </ProtectedRoute>
+            }
+          />
+          {/* Rutas públicas para usuarios no autenticados */}
+          <Route
+            path="/signin"
+            element={
+              <Login
+                isOpen={isLoginOpen}
+                onClose={handleCloseAllsPopup}
+                onOpenPopupRegister={() => {
+                  setIsLoginOpen(false);
+                  setIsRegisterOpen(true);
+                }}
+                onSetIsLoggedIn={setIsLoggedIn}
+              />
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <Register
+                isOpen={isRegisterOpen}
+                onClose={handleCloseAllsPopup}
+                isLoading={isLoggedIn}
+              />
+            }
+          />
+          {/* Redirige cualquier otra ruta a / si no está autenticado */}
+          <Route
+            path="/protected"
+            element={<ProtectedRoute isLoggedIn={isLoggedIn}></ProtectedRoute>}
+          />
+        </Routes>
+        <Footer />
+        {/*Popup Login */}
 
-      <Login
-        isOpen={isLoginOpen}
-        onClose={handleCloseAllsPopup}
-        onOpenPopupRegister={() => {
-          setIsLoginOpen(false);
-          setIsRegisterOpen(true);
-        }}
-        onLogin={handleLogin}
-      />
-
-      {/*Popup Register */}
-      <Register
-        isOpen={isRegisterOpen}
-        onClose={handleCloseAllsPopup}
-        isLoading={isLoggedIn}
-        onRegister={handleRegister}
-      />
-      {/*Popup Open Image */}
-      {selectedCard && (
-        <ImagePopup
-          card={selectedCard}
-          isOpen={isImagePopupOpen}
+        <Login
+          isOpen={isLoginOpen}
           onClose={handleCloseAllsPopup}
-        ></ImagePopup>
-      )}
+          onOpenPopupRegister={() => {
+            setIsLoginOpen(false);
+            setIsRegisterOpen(true);
+          }}
+        />
+
+        {/*Popup Register */}
+        <Register
+          isOpen={isRegisterOpen}
+          onClose={handleCloseAllsPopup}
+          isLoading={isLoggedIn}
+        />
+        {/*Popup Open Image */}
+        {selectedCard && (
+          <ImagePopup
+            card={selectedCard}
+            isOpen={isImagePopupOpen}
+            onClose={handleCloseAllsPopup}
+          ></ImagePopup>
+        )}
+      </CurrentUserContext.Provider>
     </>
   );
 }

@@ -1,20 +1,46 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./header";
 import NewsCard from "./NewCard";
+import { getSavedArticles, deleteArticle } from "../utils/ThirdPartyApi";
 import "../blocks/SavedNewsHeader.css";
 
 function SavedNewsHeader({
   userName = "Eduardo Silva",
-  keywords = ["Naturaleza", "Yellowstone", "Musica"],
   isLoggedIn,
   onLoggedOut,
   onLoginClick,
-  onDataArticles,
   onArticleClick,
 }) {
+  const [savedArticles, setSavedArticles] = useState([]);
+
   const savedArticlesCount = 5; //cantidad de noticias que puede guardar el usuario
-  const keywordsDisplay = keywords.slice(0, 2).join(", "); // Muestra las dos primeras palabras clave
-  const additionalKeywordsCount = keywords.length - 2; // Muestra cuántas palabras clave más hay
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    getSavedArticles(token)
+      .then((articles) => {
+        setSavedArticles(articles);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  const keywordsDisplay = savedArticles.keywords.slice(0, 2).join(", "); // Muestra las dos primeras palabras clave
+  const additionalKeywordsCount = savedArticles.keywords.length - 2; // Muestra cuántas palabras clave más hay
+
+  const handleDeleteArticle = (articleId) => {
+    const token = localStorage.getItem("token");
+    deleteArticle(articleId, token)
+      .then(() => {
+        setSavedArticles((prevArticles) =>
+          prevArticles.filter((article) => article._id !== articleId)
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <section className="saved-news">
@@ -37,11 +63,12 @@ function SavedNewsHeader({
           </p>
         </div>
         <div className="saved-news__article">
-          {onDataArticles.map((article) => (
+          {savedArticles.map((article) => (
             <NewsCard
-              key={article.source.id}
+              key={article.source}
               articleData={article}
               onArticleClick={onArticleClick}
+              onArticleDelete={handleDeleteArticle}
             />
           ))}
         </div>

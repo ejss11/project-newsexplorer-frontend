@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import PopupWithForm from "./PopupWithForm";
 import InfoTooltip from "./InfoTooltip";
 import Preloader from "./Preloader";
-import * as auth from "../utils/auth";
+import * as auth from "../utils/MainApi";
+import { emailPattern } from "../utils/constants";
 import "../blocks/popup.css";
 import "../blocks/register.css";
 
-function Register({ isOpen, onClose, onRegister, isLoading }) {
+function Register({ isOpen, onClose, isLoading }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userName, setUserName] = useState("");
@@ -27,14 +28,15 @@ function Register({ isOpen, onClose, onRegister, isLoading }) {
     setIsSuccess(false);
 
     auth
-      .register(email, password)
+      .register(email, password, userName)
       .then((res) => {
         if (res._id) {
           setEmail("");
           setPassword("");
+          setUserName("");
           setIsSuccess(true);
           setIsInfoTooltipOpen(true);
-          onRegister(); // Mostrar mensaje de éxito en App.js
+
           //navigate("/signin"); // Redirige a la pantalla de inicio de sesión
         }
       })
@@ -52,8 +54,9 @@ function Register({ isOpen, onClose, onRegister, isLoading }) {
   function handleInputChange(e) {
     const { name, value } = e.target;
     if (name === "email") {
+      //validar email value.includes("@")
       setEmail(value);
-      setIsEmailValid(value.includes("@"));
+      setIsEmailValid(emailPattern.test(value));
       setErrorMessageEmail("Dirección de correo electrónico no válida");
     }
     if (name === "password") {

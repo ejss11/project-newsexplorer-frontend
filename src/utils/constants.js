@@ -50,3 +50,6 @@ export const initialArticle = [
 export const BASE_URL = "https://newsapi.org/v2/top-headlines?";
 export const BASE_URL_EVERYTHING = "https://newsapi.org/v2/everything";
 export const API_KEY = "552653d6ba084e1aab19673407937b67";
+export const BASE_URL_API = "https://api.eduardo.desarrollointerno.com";
+
+export const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
