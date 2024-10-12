@@ -7,10 +7,11 @@ import Login from "./Login";
 import Register from "./Register";
 import SavedNewsHeader from "./SavedNewsHeader";
 import ImagePopup from "./imagePopup";
-import { getNews, fetchNews } from "../utils/ThirdPartyApi";
+import { getNews, fetchNews, savedArticle } from "../utils/ThirdPartyApi";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 import { getUserInfo } from "../utils/MainApi";
 import ProtectedRoute from "./ProtectedRoute";
+import ErrorBoundary from "./ErrorBoundary";
 
 function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -23,6 +24,8 @@ function App() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [isImagePopupOpen, setIsImagenPopupOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState({});
+  const [isSavedArticle, setSavedArticle] = useState(false);
+  const [ArticleSaved, setArticlesSaved] = useState([]);
 
   const navigate = useNavigate();
 
@@ -64,21 +67,23 @@ function App() {
     }
   }, [searchTerm]);
 
-  useEffect(() => {
-    const savedArticles = JSON.parse(localStorage.getItem("articles"));
-    if (savedArticles) {
-      setArticles(savedArticles);
+  const handleSaveArticle = async (articleData) => {
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      console.error("Token no disponible. El usuario no está autenticado.");
+      return;
     }
-  }, []);
+
+    try {
+      const savedArticleResponse = await savedArticle(articleData, token);
+      setArticlesSaved((prevSaved) => [...prevSaved, savedArticleResponse]);
+    } catch (err) {
+      console.error("Error al guardar el artículo:", err);
+    }
+  };
 
   useEffect(() => {
-    if (articles.length > 0) {
-      localStorage.setItem("articles", JSON.stringify(articles));
-    }
-  }, [articles]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwt");
 
     getUserInfo(token)
       .then((data) => {
@@ -88,8 +93,15 @@ function App() {
       .catch((err) => {
         console.log(err);
         setIsLoggedIn(false);
+        navigate("/");
       });
-  }, []);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      console.log("sesion iniciada");
+    }
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
@@ -121,24 +133,31 @@ function App() {
           <Route
             path="/"
             element={
-              <Main
-                onLoginClickPopup={() => setIsLoginOpen(true)}
-                onSubmit={setSearchTerm}
-                isLoading={isLoading}
-                isLoggedIn={isLoggedIn}
-                onLoggedOut={handleLogout}
-                onDataArticles={articles}
-                onArticleClick={handleCardClick}
-              />
+              <ErrorBoundary>
+                <Main
+                  onLoginClickPopup={() => setIsLoginOpen(true)}
+                  onSubmit={setSearchTerm}
+                  isLoading={isLoading}
+                  isLoggedIn={isLoggedIn}
+                  onLoggedOut={handleLogout}
+                  onDataArticles={articles}
+                  onArticleClick={handleCardClick}
+                  isUser={currentUser.name}
+                  isSavedArticle={setSavedArticle}
+                  savedArticleData={handleSaveArticle}
+                />
+              </ErrorBoundary>
             }
           />
           {/* Ruta para la página de artículos guardados */}
           <Route
             path="/saved-news"
             element={
-              <ProtectedRoute isLoggedIn={isLoggedIn}>
+              <ProtectedRoute
+                component={SavedNewsHeader}
+                isLoggedIn={isLoggedIn}
+              >
                 <SavedNewsHeader
-                  userName={currentUser}
                   isLoggedIn={isLoggedIn}
                   onLoggedOut={handleLogout}
                   onLoginClick={() => setIsLoginOpen(true)}
@@ -158,7 +177,7 @@ function App() {
                   setIsLoginOpen(false);
                   setIsRegisterOpen(true);
                 }}
-                onSetIsLoggedIn={setIsLoggedIn}
+                onSetIsLoggedIn={() => setIsLoggedIn(true)}
               />
             }
           />
@@ -174,7 +193,7 @@ function App() {
           />
           {/* Redirige cualquier otra ruta a / si no está autenticado */}
           <Route
-            path="/protected"
+            path="*"
             element={<ProtectedRoute isLoggedIn={isLoggedIn}></ProtectedRoute>}
           />
         </Routes>
@@ -187,6 +206,10 @@ function App() {
           onOpenPopupRegister={() => {
             setIsLoginOpen(false);
             setIsRegisterOpen(true);
+          }}
+          onSetIsLoggedIn={(value) => {
+            console.log("value", value);
+            setIsLoggedIn(value);
           }}
         />
 

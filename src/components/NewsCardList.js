@@ -4,18 +4,21 @@ import "../blocks/NewsCardList.css";
 import notFound from "../images/not-found_v1.svg";
 import Preloader from "./Preloader";
 
-function NewsCardList({ isLoading, onDataArticles, onArticleClick }) {
-  // Estado para controlar cuántas tarjetas se muestran
+function NewsCardList({
+  isLoading,
+  onDataArticles,
+  onArticleClick,
+  isSavedArticle,
+  savedArticleData,
+}) {
   const [visibleCards, setVisibleCards] = useState(3);
 
-  // Manejar el clic en el botón "Ver más"
   const handleShowMore = () => {
     setVisibleCards(onDataArticles.length);
   };
 
-  // Recortar los artículos mostrados según el estado
   const displayedArticles = onDataArticles.slice(0, visibleCards);
-  console.log(onDataArticles);
+
   return (
     <section className="article">
       {/* Condicional: Si no hay artículos, mostrar mensaje de "No se encontraron resultados" */}
@@ -26,13 +29,14 @@ function NewsCardList({ isLoading, onDataArticles, onArticleClick }) {
         <>
           <h2 className="article__title">Resultados de la búsqueda</h2>
           <ul className="article__content">
-            {displayedArticles.map((article) => {
-              console.log("Articulo objs: ", article.source);
+            {displayedArticles.map((article, index) => {
               return (
                 <NewsCard
-                  key={article.source.id}
+                  key={index}
                   articleData={article}
                   onArticleClick={onArticleClick}
+                  isSavedArticle={isSavedArticle}
+                  savedArticleData={savedArticleData}
                 />
               );
             })}

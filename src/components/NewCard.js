@@ -6,7 +6,13 @@ import iconDelete from "../images/trash.svg";
 import iconSaved from "../images/bookmark.svg";
 import iconSavedBlue from "../images/bookmark-blue.svg";
 
-function NewsCard({ articleData, onArticleClick, onArticleDelete }) {
+function NewsCard({
+  articleData,
+  onArticleClick,
+  onArticleDelete,
+  isSavedArticle,
+  savedArticleData,
+}) {
   const location = useLocation();
 
   const dateArticle = articleData.publishedAt
@@ -33,7 +39,6 @@ function NewsCard({ articleData, onArticleClick, onArticleDelete }) {
   console.log(formattedDate);
 
   const isSavedNewsPage = location.pathname === "/saved-news";
-  const [isSavedArticle, setSavedArticle] = useState(false);
 
   const currentUser = useContext(CurrentUserContext);
   const isOwn =
@@ -50,11 +55,6 @@ function NewsCard({ articleData, onArticleClick, onArticleDelete }) {
   const cardsSavedIcon = `${isSavedArticle ? iconSavedBlue : iconSaved}`;
 
   const handleClick = () => {
-    onArticleClick(articleData);
-  };
-
-  const handleSavedClick = () => {
-    setSavedArticle(true);
     onArticleClick(articleData);
   };
 
@@ -83,10 +83,13 @@ function NewsCard({ articleData, onArticleClick, onArticleDelete }) {
                 alt="Eliminar Articulo Guardado"
               />
             </button>
-            <span class="card__image-tooltip">Eliminar Artículo</span>
+            <span className="card__image-tooltip">Eliminar Artículo</span>
           </div>
         ) : isOwn ? (
-          <button className="card__image-button" onClick={handleSavedClick}>
+          <button
+            className="card__image-button"
+            onClick={() => savedArticleData(articleData)}
+          >
             <img
               className={cardSavedButtonClassName}
               src={cardsSavedIcon}
@@ -96,14 +99,17 @@ function NewsCard({ articleData, onArticleClick, onArticleDelete }) {
         ) : (
           <>
             <div className="card__image-button_container">
-              <button className="card__image-button" onClick={handleSavedClick}>
+              <button
+                className="card__image-button"
+                onClick={() => savedArticleData(articleData)}
+              >
                 <img
                   className={cardSavedButtonClassName}
                   src={cardsSavedIcon}
                   alt="Guardar Articulo"
                 />
               </button>
-              <span class="card__image-tooltip">
+              <span className="card__image-tooltip">
                 Inicia sesión para guardar artículos
               </span>
             </div>

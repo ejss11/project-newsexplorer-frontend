@@ -1,6 +1,5 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import CurrentUserContext from "../contexts/CurrentUserContext";
 import "../blocks/navigation.css";
 import logout from "../images/Union.svg";
 import logoutBlack from "../images/logout.svg";
@@ -9,12 +8,11 @@ import menuWhite from "../images/menuWhite.svg";
 import menuBlack from "../images/menuBlack.svg";
 import menuCloseBlack from "../images/Cross.svg";
 
-function Navigation({ onLoginClick, isLoggedIn = true, onLoggedOut }) {
+function Navigation({ onLoginClick, isLoggedIn, onLoggedOut, isUser }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   console.log(isMenuOpen);
-  const userName = useContext(CurrentUserContext);
 
   const onMenuToggle = () => setIsMenuOpen(!isMenuOpen);
 
@@ -78,7 +76,7 @@ function Navigation({ onLoginClick, isLoggedIn = true, onLoggedOut }) {
                   onMenuToggle(); // Cierra el menú tras cerrar sesión
                 }}
               >
-                {userName}
+                {isUser}
                 <img
                   className="nav__button-icon-mobile"
                   src={isSavedNewsPage ? logout : logout}
@@ -147,7 +145,7 @@ function Navigation({ onLoginClick, isLoggedIn = true, onLoggedOut }) {
             }`}
             onClick={onLoggedOut}
           >
-            {userName}
+            {isUser}
             <img
               className="nav__button-icon"
               src={isSavedNewsPage ? logoutBlack : logout}

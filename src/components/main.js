@@ -13,6 +13,9 @@ function Main({
   isLoading,
   onDataArticles,
   onArticleClick,
+  isUser,
+  isSavedArticle,
+  savedArticleData,
 }) {
   // Estado para controlar si se ha hecho una búsqueda
   const [hasSearched, setHasSearched] = useState(true);
@@ -30,6 +33,7 @@ function Main({
           onLoginClick={onLoginClickPopup}
           isLoggedIn={isLoggedIn}
           onLoggedOut={onLoggedOut}
+          isUser={isUser}
         />
         <SearchForm onSearch={handleSearchSubmit} />
       </div>
@@ -39,6 +43,8 @@ function Main({
           isLoading={isLoading}
           onDataArticles={onDataArticles}
           onArticleClick={onArticleClick}
+          isSavedArticle={isSavedArticle}
+          savedArticleData={savedArticleData}
         />
       )}
       <About />

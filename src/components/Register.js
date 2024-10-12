@@ -30,7 +30,7 @@ function Register({ isOpen, onClose, isLoading }) {
     auth
       .register(email, password, userName)
       .then((res) => {
-        if (res._id) {
+        if (res) {
           setEmail("");
           setPassword("");
           setUserName("");

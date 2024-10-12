@@ -5,13 +5,7 @@ import { emailPattern } from "../utils/constants";
 import "../blocks/popup.css";
 import "../blocks/login.css";
 
-function Login({
-  isOpen,
-  onClose,
-  isLoading,
-  onOpenPopupRegister,
-  onSetIsLoggedIn,
-}) {
+function Login({ isOpen, onClose, onOpenPopupRegister, onSetIsLoggedIn }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
@@ -27,13 +21,14 @@ function Login({
     if (email && password) {
       authorize(email, password)
         .then((data) => {
-          localStorage.setItem("token", data.token);
+          localStorage.setItem("jwt", data.token);
           onSetIsLoggedIn(true);
           onClose();
         })
         .catch((err) => {
           setErrorMessage(
-            "Error de inicio de sesión, por favor verifica tus credenciales."
+            "Error de inicio de sesión, por favor verifica tus credenciales. " +
+              err
           );
         });
     } else {

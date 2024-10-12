@@ -75,7 +75,7 @@ export const savedArticle = (articleData, token) => {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(articleData), // Convertimos el objeto articleData a JSON
+    body: JSON.stringify(articleData),
   })
     .then((res) => {
       if (!res.ok) {

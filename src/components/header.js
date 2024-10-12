@@ -4,7 +4,7 @@ import Navigation from "./navigation";
 
 import "../blocks/header.css";
 
-function Header({ onLoginClick, isLoggedIn, onLoggedOut }) {
+function Header({ onLoginClick, isLoggedIn, onLoggedOut, isUser }) {
   const location = useLocation();
 
   // Verifica si la ruta actual es "/saved-news"
@@ -28,6 +28,7 @@ function Header({ onLoginClick, isLoggedIn, onLoggedOut }) {
           onLoginClick={onLoginClick}
           isLoggedIn={isLoggedIn}
           onLoggedOut={onLoggedOut}
+          isUser={isUser}
         />
       </div>
       <div

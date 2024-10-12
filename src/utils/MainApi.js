@@ -1,4 +1,5 @@
-const BASE_URL = "https://api.eduardo.desarrollointerno.com";
+const BASE_URL = "http://localhost:3001";
+//"https://api.eduardo.desarrollointerno.com"
 
 export const register = (email, password, name) => {
   return fetch(`${BASE_URL}/signup`, {
@@ -13,10 +14,13 @@ export const register = (email, password, name) => {
   });
 };
 
-export const authorize = (email, password) => {
+export const authorize = (email, password, token) => {
   return fetch(`${BASE_URL}/signin`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({ email: email, password: password }),
   })
     .then((resp) => {
