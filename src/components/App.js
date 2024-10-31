@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import "../blocks/App.css";
 import Main from "./main";
 import Footer from "./Footer";
@@ -7,20 +7,25 @@ import Login from "./Login";
 import Register from "./Register";
 import SavedNewsHeader from "./SavedNewsHeader";
 import ImagePopup from "./imagePopup";
-import { getNews, fetchNews } from "../utils/ThirdPartyApi";
+import { getNews, fetchNews, savedArticle } from "../utils/ThirdPartyApi";
+import CurrentUserContext from "../contexts/CurrentUserContext";
+import { getUserInfo, checkToken } from "../utils/MainApi";
+import ProtectedRoute from "./ProtectedRoute";
+import ErrorBoundary from "./ErrorBoundary";
 
 function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  //const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
-  //const [isSuccess, setIsSuccess] = useState(false);
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
   const [isImagePopupOpen, setIsImagenPopupOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState({});
+  const [isSavedArticle, setSavedArticle] = useState(false);
+  const [ArticleSaved, setArticlesSaved] = useState([]);
 
   const navigate = useNavigate();
 
@@ -43,11 +48,13 @@ function App() {
     } else {
       fetchData();
     }
+
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
     if (searchTerm) {
-      setIsLoading(true); // Inicia el loader
+      setIsLoading(true);
       fetchNews(searchTerm)
         .then((data) => {
           setArticles(data);
@@ -60,59 +67,72 @@ function App() {
     }
   }, [searchTerm]);
 
-  // almacenar los datos en el localStorage y leerlos cuando el usuario vuelve a la página
-  useEffect(() => {
-    const savedArticles = JSON.parse(localStorage.getItem("articles"));
-    if (savedArticles) {
-      setArticles(savedArticles);
+  const handleSaveArticle = async (articleData, user) => {
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      console.error("Token no disponible. El usuario no está autenticado.");
+      return;
     }
-  }, []);
 
-  useEffect(() => {
-    if (articles.length > 0) {
-      localStorage.setItem("articles", JSON.stringify(articles));
-    }
-  }, [articles]);
+    try {
+      const isArticleSaved = ArticleSaved.some(
+        (savedArticle) => savedArticle.link === articleData.url
+      );
 
-  if (error) {
-    return <div>{error}</div>;
-  }
-
-  const handleLogin = (email, password) => {
-    //setIsLoginOpen(true);
-    // Aquí validas las credenciales con una solicitud al servidor
-    if (email === "demo@demo.com" && password === "password123") {
-      //setIsLoggedIn(true); // Autenticación exitosa
-      setIsLoginOpen(false); // Cierra el modal
-    } else {
-      setIsLoggedIn(false);
-      console.error("Credenciales incorrectas");
+      if (isArticleSaved) {
+        /*  const updatedSavedArticles = ArticleSaved.filter(
+          (savedArticle) => savedArticle.url !== articleData.url
+        );
+        setArticlesSaved(updatedSavedArticles);
+        setSavedArticle(true); */
+        console.log("Artículo ya guardado");
+      } else {
+        const savedArticleResponse = await savedArticle(
+          articleData,
+          user,
+          token
+        );
+        setArticlesSaved((prevSaved) => [...prevSaved, savedArticleResponse]);
+        setSavedArticle(true);
+      }
+    } catch (err) {
+      console.error("Error al guardar el artículo:", err);
+      setSavedArticle(false);
     }
   };
 
-  // Manejar el envío del formulario de búsqueda
-  /* const handleSearch = (searchTerm) => {
-    // Simulación de llamada a API o búsqueda
-    setTimeout(() => {
-      setIsLoading(false); // Detiene el loader después de 2 segundos
-      // Aquí deberías hacer la búsqueda real y actualizar el estado de resultados.
-    }, 2000);
-  }; */
+  useEffect(() => {
+    const token = localStorage.getItem("jwt");
+    if (token) {
+      getUserInfo(token)
+        .then((data) => {
+          setCurrentUser(data);
+          setIsLoggedIn(true);
+        })
+        .catch((err) => {
+          console.log(err);
+          setIsLoggedIn(false);
+          navigate("/");
+        });
+    }
+  }, [navigate]);
 
-  const handleRegister = () => {
-    //setIsSuccess(true);
-    //setIsInfoTooltipOpen(true);
-  };
+  useEffect(() => {
+    if (isLoggedIn) {
+      console.log("sesion iniciada");
+    }
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
-    setIsLoggedIn(false); // Maneja el cierre de sesión
+    console.log("Token eliminado:", localStorage.getItem("jwt"));
+    setIsLoggedIn(false);
+    window.location.reload();
     navigate("/");
   };
 
   const handleCloseAllsPopup = () => {
     setIsRegisterOpen(false);
-    setIsLoggedIn(false);
     setIsLoginOpen(false);
     setIsImagenPopupOpen(false);
   };
@@ -122,71 +142,118 @@ function App() {
     setIsImagenPopupOpen(true);
   };
 
+  if (error) {
+    return <div>{error}</div>;
+  }
   return (
     <>
-      <Routes>
-        {/* Ruta para la página principal */}
-        <Route
-          path="/"
-          element={
-            <Main
-              onLoginClickPopup={() => setIsLoginOpen(true)}
-              onSubmit={setSearchTerm}
-              isLoading={isLoading}
-              isLoggedIn={isLoggedIn}
-              onLoggedOut={handleLogout}
-              onDataArticles={articles}
-              onArticleClick={handleCardClick}
-            />
-          }
-        />
-        {/* Ruta para la página de artículos guardados */}
-        <Route
-          path="/saved-news"
-          element={
-            <SavedNewsHeader
-              isLoggedIn={isLoggedIn}
-              onLoggedOut={handleLogout}
-              onLoginClick={() => setIsLoginOpen(true)}
-              onDataArticles={articles}
-              onArticleClick={handleCardClick}
-            ></SavedNewsHeader>
-          }
-        />
-        {/* Redirige cualquier otra ruta a / si no está autenticado */}
-        <Route
-          path="*"
-          element={<Navigate to={isLoggedIn ? "/saved-news" : "/"} />}
-        />
-      </Routes>
-      <Footer />
-      {/*Popup Login */}
+      <CurrentUserContext.Provider value={currentUser}>
+        <Routes>
+          {/* Ruta para la página principal */}
+          <Route
+            path="/"
+            element={
+              <ErrorBoundary>
+                <Main
+                  onLoginClickPopup={() => setIsLoginOpen(true)}
+                  onSubmit={setSearchTerm}
+                  isLoading={isLoading}
+                  isLoggedIn={isLoggedIn}
+                  onLoggedOut={handleLogout}
+                  onDataArticles={articles}
+                  onArticleClick={handleCardClick}
+                  isUser={currentUser.name}
+                  isSavedArticle={isSavedArticle}
+                  savedArticleData={handleSaveArticle}
+                  savedArticles={ArticleSaved}
+                />
+              </ErrorBoundary>
+            }
+          />
+          {/* Ruta para la página de artículos guardados */}
+          <Route
+            path="/saved-news"
+            element={
+              <ProtectedRoute
+                component={SavedNewsHeader}
+                isLoggedIn={isLoggedIn}
+              >
+                <SavedNewsHeader
+                  isLoggedIn={isLoggedIn}
+                  onLoggedOut={handleLogout}
+                  onLoginClick={() => setIsLoginOpen(true)}
+                  onArticleClick={handleCardClick}
+                  savedArticle={ArticleSaved}
+                  isSavedArticle={isSavedArticle}
+                ></SavedNewsHeader>
+              </ProtectedRoute>
+            }
+          />
+          {/* Rutas públicas para usuarios no autenticados */}
+          <Route
+            path="/signin"
+            element={
+              <Login
+                isOpen={isLoginOpen}
+                onClose={handleCloseAllsPopup}
+                onOpenPopupRegister={() => {
+                  setIsLoginOpen(false);
+                  setIsRegisterOpen(true);
+                }}
+                onSetIsLoggedIn={(value) => {
+                  console.log("Valor recibido desde Login:", value);
+                  setIsLoggedIn(value);
+                }}
+              />
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <Register
+                isOpen={isRegisterOpen}
+                onClose={handleCloseAllsPopup}
+                isLoading={isLoading}
+              />
+            }
+          />
+          {/* Redirige cualquier otra ruta a / si no está autenticado */}
+          {/* <Route
+            path="*"
+            element={<ProtectedRoute isLoggedIn={isLoggedIn}></ProtectedRoute>}
+          /> */}
+        </Routes>
+        <Footer />
+        {/*Popup Login */}
 
-      <Login
-        isOpen={isLoginOpen}
-        onClose={handleCloseAllsPopup}
-        onOpenPopupRegister={() => {
-          setIsLoginOpen(false);
-          setIsRegisterOpen(true);
-        }}
-        onLogin={handleLogin}
-      />
-
-      {/*Popup Register */}
-      <Register
-        isOpen={isRegisterOpen}
-        onClose={handleCloseAllsPopup}
-        isLoading={isLoggedIn}
-        onRegister={handleRegister}
-      />
-      {/*Popup Open Image */}
-      {selectedCard && (
-        <ImagePopup
-          card={selectedCard}
-          isOpen={isImagePopupOpen}
+        <Login
+          isOpen={isLoginOpen}
           onClose={handleCloseAllsPopup}
-        ></ImagePopup>
-      )}
+          onOpenPopupRegister={() => {
+            setIsLoginOpen(false);
+            setIsRegisterOpen(true);
+          }}
+          onSetIsLoggedIn={(value) => {
+            console.log("Valor recibido desde Login:", value);
+            setIsLoggedIn(value);
+          }}
+        />
+
+        {/*Popup Register */}
+        <Register
+          isOpen={isRegisterOpen}
+          onClose={handleCloseAllsPopup}
+          isLoading={isLoggedIn}
+        />
+        {/*Popup Open Image */}
+        {selectedCard && (
+          <ImagePopup
+            card={selectedCard}
+            isOpen={isImagePopupOpen}
+            onClose={handleCloseAllsPopup}
+          ></ImagePopup>
+        )}
+      </CurrentUserContext.Provider>
     </>
   );
 }

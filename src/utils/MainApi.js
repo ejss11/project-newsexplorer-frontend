@@ -1,12 +1,11 @@
-import { BASE_URL } from "./constants";
-/* const BASE_URL = "https://api.eduardo.desarrollointerno.com"; */
+const BASE_URL = "https://api.eduardo.desarrollointerno.com";
+//"http://localhost:3001"
 
-// Función para registrar un nuevo usuario
-export const register = (email, password) => {
+export const register = (email, password, name) => {
   return fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: email, password: password }),
+    body: JSON.stringify({ email: email, password: password, name: name }),
   }).then((resp) => {
     if (resp.ok) {
       return resp.json();
@@ -15,11 +14,13 @@ export const register = (email, password) => {
   });
 };
 
-// Función para iniciar sesión
-export const authorize = (email, password) => {
+export const authorize = (email, password, token) => {
   return fetch(`${BASE_URL}/signin`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({ email: email, password: password }),
   })
     .then((resp) => {
@@ -34,7 +35,6 @@ export const authorize = (email, password) => {
     });
 };
 
-// Función para comprobar la validez del token
 export const checkToken = async () => {
   const token = localStorage.getItem("jwt");
   return fetch(`${BASE_URL}/users/me`, {
@@ -48,5 +48,20 @@ export const checkToken = async () => {
       return Promise.reject(`Error: ${response.status}`);
     }
     return response.json();
+  });
+};
+
+export const getUserInfo = (token) => {
+  return fetch(`${BASE_URL}/users/me`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    if (response.ok) {
+      return response.json();
+    }
+    return Promise.reject(`Error: ${response.status}`);
   });
 };

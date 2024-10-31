@@ -1,4 +1,9 @@
-import { BASE_URL, BASE_URL_EVERYTHING, API_KEY } from "./constants";
+import {
+  BASE_URL,
+  BASE_URL_EVERYTHING,
+  BASE_URL_API,
+  API_KEY,
+} from "./constants";
 
 export const getNews = async () => {
   try {
@@ -39,4 +44,77 @@ export const fetchNews = async (keyword) => {
     console.error("Error fetching news:", error);
     throw error; // Manejar el error en el componente
   }
+};
+
+// Obtener los artículos guardados
+export const getSavedArticles = (token) => {
+  return fetch(`${BASE_URL_API}/articles`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        return Promise.reject(`Error: ${res.status}`);
+      }
+      return res.json();
+    })
+    .catch((err) => {
+      console.log("Error al obtener artículos guardados:", err);
+      throw err;
+    });
+};
+
+// Guardar un artículo
+export const savedArticle = (articleData, user, token) => {
+  return fetch(`${BASE_URL_API}/articles`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      keyword: articleData.source.id,
+      title: articleData.title,
+      text: articleData.description,
+      date: articleData.publishedAt,
+      source: articleData.source.name,
+      link: articleData.url,
+      image: articleData.urlToImage,
+      owner: user._id,
+    }),
+  })
+    .then((res) => {
+      if (!res.ok) {
+        return Promise.reject(`Error: ${res.status}`);
+      }
+      return res.json();
+    })
+    .catch((err) => {
+      console.log("Error al guardar el artículo:", err);
+      throw err;
+    });
+};
+
+// Eliminar un artículo guardado
+export const deleteArticle = (articleId, token) => {
+  return fetch(`${BASE_URL_API}/articles/${articleId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        return Promise.reject(`Error: ${res.status}`);
+      }
+      return res.json();
+    })
+    .catch((err) => {
+      console.log("Error al eliminar el artículo:", err);
+      throw err;
+    });
 };
