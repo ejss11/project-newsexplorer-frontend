@@ -10,6 +10,8 @@ function NewsCardList({
   onArticleClick,
   isSavedArticle,
   savedArticleData,
+  isLoggedIn,
+  savedArticles,
 }) {
   const [visibleCards, setVisibleCards] = useState(3);
 
@@ -37,6 +39,8 @@ function NewsCardList({
                   onArticleClick={onArticleClick}
                   isSavedArticle={isSavedArticle}
                   savedArticleData={savedArticleData}
+                  isLoggedIn={isLoggedIn}
+                  savedArticles={savedArticles}
                 />
               );
             })}

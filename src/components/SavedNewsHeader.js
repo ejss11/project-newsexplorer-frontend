@@ -10,6 +10,7 @@ function SavedNewsHeader({
   onLoggedOut,
   onLoginClick,
   onArticleClick,
+  isSavedArticle,
 }) {
   const [savedArticles, setSavedArticles] = useState([]);
 
@@ -18,7 +19,7 @@ function SavedNewsHeader({
   const savedArticlesCount = savedArticles.length;
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwt");
     getSavedArticles(token)
       .then((articles) => {
         setSavedArticles(articles);
@@ -26,7 +27,7 @@ function SavedNewsHeader({
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }, [savedArticles]);
 
   let keywordsDisplay = "";
   let additionalKeywordsCount = 0;
@@ -38,12 +39,13 @@ function SavedNewsHeader({
   }
 
   const handleDeleteArticle = (articleId) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwt");
     deleteArticle(articleId, token)
       .then(() => {
         setSavedArticles((prevArticles) =>
           prevArticles.filter((article) => article._id !== articleId)
         );
+        isSavedArticle(false);
       })
       .catch((err) => {
         console.log(err);
@@ -77,8 +79,8 @@ function SavedNewsHeader({
                 <NewsCard
                   key={index}
                   articleData={article}
-                  onArticleClick={onArticleClick}
                   onArticleDelete={handleDeleteArticle}
+                  isSavedArticle={isSavedArticle}
                 />
               ))
             : ""}

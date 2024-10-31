@@ -9,7 +9,7 @@ import SavedNewsHeader from "./SavedNewsHeader";
 import ImagePopup from "./imagePopup";
 import { getNews, fetchNews, savedArticle } from "../utils/ThirdPartyApi";
 import CurrentUserContext from "../contexts/CurrentUserContext";
-import { getUserInfo } from "../utils/MainApi";
+import { getUserInfo, checkToken } from "../utils/MainApi";
 import ProtectedRoute from "./ProtectedRoute";
 import ErrorBoundary from "./ErrorBoundary";
 
@@ -67,7 +67,7 @@ function App() {
     }
   }, [searchTerm]);
 
-  const handleSaveArticle = async (articleData) => {
+  const handleSaveArticle = async (articleData, user) => {
     const token = localStorage.getItem("jwt");
     if (!token) {
       console.error("Token no disponible. El usuario no está autenticado.");
@@ -75,26 +75,46 @@ function App() {
     }
 
     try {
-      const savedArticleResponse = await savedArticle(articleData, token);
-      setArticlesSaved((prevSaved) => [...prevSaved, savedArticleResponse]);
+      const isArticleSaved = ArticleSaved.some(
+        (savedArticle) => savedArticle.link === articleData.url
+      );
+
+      if (isArticleSaved) {
+        /*  const updatedSavedArticles = ArticleSaved.filter(
+          (savedArticle) => savedArticle.url !== articleData.url
+        );
+        setArticlesSaved(updatedSavedArticles);
+        setSavedArticle(true); */
+        console.log("Artículo ya guardado");
+      } else {
+        const savedArticleResponse = await savedArticle(
+          articleData,
+          user,
+          token
+        );
+        setArticlesSaved((prevSaved) => [...prevSaved, savedArticleResponse]);
+        setSavedArticle(true);
+      }
     } catch (err) {
       console.error("Error al guardar el artículo:", err);
+      setSavedArticle(false);
     }
   };
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
-
-    getUserInfo(token)
-      .then((data) => {
-        setCurrentUser(data);
-        setIsLoggedIn(true);
-      })
-      .catch((err) => {
-        console.log(err);
-        setIsLoggedIn(false);
-        navigate("/");
-      });
+    if (token) {
+      getUserInfo(token)
+        .then((data) => {
+          setCurrentUser(data);
+          setIsLoggedIn(true);
+        })
+        .catch((err) => {
+          console.log(err);
+          setIsLoggedIn(false);
+          navigate("/");
+        });
+    }
   }, [navigate]);
 
   useEffect(() => {
@@ -105,6 +125,7 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
+    console.log("Token eliminado:", localStorage.getItem("jwt"));
     setIsLoggedIn(false);
     window.location.reload();
     navigate("/");
@@ -112,7 +133,6 @@ function App() {
 
   const handleCloseAllsPopup = () => {
     setIsRegisterOpen(false);
-    setIsLoggedIn(false);
     setIsLoginOpen(false);
     setIsImagenPopupOpen(false);
   };
@@ -143,8 +163,9 @@ function App() {
                   onDataArticles={articles}
                   onArticleClick={handleCardClick}
                   isUser={currentUser.name}
-                  isSavedArticle={setSavedArticle}
+                  isSavedArticle={isSavedArticle}
                   savedArticleData={handleSaveArticle}
+                  savedArticles={ArticleSaved}
                 />
               </ErrorBoundary>
             }
@@ -162,6 +183,8 @@ function App() {
                   onLoggedOut={handleLogout}
                   onLoginClick={() => setIsLoginOpen(true)}
                   onArticleClick={handleCardClick}
+                  savedArticle={ArticleSaved}
+                  isSavedArticle={isSavedArticle}
                 ></SavedNewsHeader>
               </ProtectedRoute>
             }
@@ -177,7 +200,10 @@ function App() {
                   setIsLoginOpen(false);
                   setIsRegisterOpen(true);
                 }}
-                onSetIsLoggedIn={() => setIsLoggedIn(true)}
+                onSetIsLoggedIn={(value) => {
+                  console.log("Valor recibido desde Login:", value);
+                  setIsLoggedIn(value);
+                }}
               />
             }
           />
@@ -187,15 +213,15 @@ function App() {
               <Register
                 isOpen={isRegisterOpen}
                 onClose={handleCloseAllsPopup}
-                isLoading={isLoggedIn}
+                isLoading={isLoading}
               />
             }
           />
           {/* Redirige cualquier otra ruta a / si no está autenticado */}
-          <Route
+          {/* <Route
             path="*"
             element={<ProtectedRoute isLoggedIn={isLoggedIn}></ProtectedRoute>}
-          />
+          /> */}
         </Routes>
         <Footer />
         {/*Popup Login */}
@@ -208,7 +234,7 @@ function App() {
             setIsRegisterOpen(true);
           }}
           onSetIsLoggedIn={(value) => {
-            console.log("value", value);
+            console.log("Valor recibido desde Login:", value);
             setIsLoggedIn(value);
           }}
         />

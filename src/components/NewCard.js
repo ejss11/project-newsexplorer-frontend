@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import { useLocation } from "react-router-dom";
 import CurrentUserContext from "../contexts/CurrentUserContext";
 import "../blocks/NewCard.css";
@@ -12,12 +12,14 @@ function NewsCard({
   onArticleDelete,
   isSavedArticle,
   savedArticleData,
+  isLoggedIn,
+  savedArticles,
 }) {
   const location = useLocation();
 
   const dateArticle = articleData.publishedAt
     ? articleData.publishedAt
-    : articleData.dare;
+    : articleData.date;
 
   const imageUrl = articleData.urlToImage
     ? articleData.urlToImage
@@ -41,25 +43,34 @@ function NewsCard({
   const isSavedNewsPage = location.pathname === "/saved-news";
 
   const currentUser = useContext(CurrentUserContext);
-  const isOwn =
-    articleData.owner && currentUser && articleData.owner === currentUser._id;
+  const isOwn = articleData.owner === currentUser._id;
+
+  const isArticleSaved =
+    Array.isArray(savedArticles) &&
+    savedArticles.some((savedArticle) => savedArticle.link === articleData.url);
 
   const cardDeleteButtonClassName = `card__image-delete ${
     isOwn ? "card__image-delete" : "card__image-delete_hidden"
   }`;
 
   const cardSavedButtonClassName = `card__image-saved ${
-    isOwn ? "card__image-saved" : "card__image-saved"
+    isOwn ? "card__image-saved" : "card__image-saved_hidden"
   }`;
 
-  const cardsSavedIcon = `${isSavedArticle ? iconSavedBlue : iconSaved}`;
+  const cardsSavedIcon = `${
+    isSavedArticle && isArticleSaved ? iconSavedBlue : iconSaved
+  }`;
 
   const handleClick = () => {
     onArticleClick(articleData);
   };
 
-  const handleDeleteClick = () => {
-    onArticleDelete(articleData._id);
+  const handleDeleteClick = (articleId) => {
+    onArticleDelete(articleId);
+  };
+
+  const handleSaveClick = () => {
+    savedArticleData(articleData, currentUser);
   };
 
   return (
@@ -76,7 +87,10 @@ function NewsCard({
             <div className="card__image-text_overlay">
               <p className="card__image-text_classification">{sourceArticle}</p>
             </div>
-            <button className="card__image-button" onClick={handleDeleteClick}>
+            <button
+              className="card__image-button"
+              onClick={() => handleDeleteClick(articleData._id)}
+            >
               <img
                 className={cardDeleteButtonClassName}
                 src={iconDelete}
@@ -85,13 +99,10 @@ function NewsCard({
             </button>
             <span className="card__image-tooltip">Eliminar Artículo</span>
           </div>
-        ) : isOwn ? (
-          <button
-            className="card__image-button"
-            onClick={() => savedArticleData(articleData)}
-          >
+        ) : isLoggedIn ? (
+          <button className="card__image-button" onClick={handleSaveClick}>
             <img
-              className={cardSavedButtonClassName}
+              className={`card__image-saved`}
               src={cardsSavedIcon}
               alt="Guardar Articulo"
             />
@@ -99,10 +110,7 @@ function NewsCard({
         ) : (
           <>
             <div className="card__image-button_container">
-              <button
-                className="card__image-button"
-                onClick={() => savedArticleData(articleData)}
-              >
+              <button className="card__image-button" onClick={handleSaveClick}>
                 <img
                   className={cardSavedButtonClassName}
                   src={cardsSavedIcon}

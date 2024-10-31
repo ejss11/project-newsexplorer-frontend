@@ -21,9 +21,14 @@ function Login({ isOpen, onClose, onOpenPopupRegister, onSetIsLoggedIn }) {
     if (email && password) {
       authorize(email, password)
         .then((data) => {
-          localStorage.setItem("jwt", data.token);
-          onSetIsLoggedIn(true);
-          onClose();
+          if (data.token) {
+            localStorage.setItem("jwt", data.token);
+            onSetIsLoggedIn(true);
+            onClose();
+            window.location.reload();
+          } else {
+            setErrorMessage("Error: No se recibió un token");
+          }
         })
         .catch((err) => {
           setErrorMessage(
@@ -52,6 +57,7 @@ function Login({ isOpen, onClose, onOpenPopupRegister, onSetIsLoggedIn }) {
         "La longitud de la contraseña de ser 6 digitos o mayor"
       );
     }
+
     setIsFormValid(isEmailValid && isPasswordtValid);
   }
 

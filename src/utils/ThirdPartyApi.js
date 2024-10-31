@@ -68,14 +68,23 @@ export const getSavedArticles = (token) => {
 };
 
 // Guardar un artículo
-export const savedArticle = (articleData, token) => {
+export const savedArticle = (articleData, user, token) => {
   return fetch(`${BASE_URL_API}/articles`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(articleData),
+    body: JSON.stringify({
+      keyword: articleData.source.id,
+      title: articleData.title,
+      text: articleData.description,
+      date: articleData.publishedAt,
+      source: articleData.source.name,
+      link: articleData.url,
+      image: articleData.urlToImage,
+      owner: user._id,
+    }),
   })
     .then((res) => {
       if (!res.ok) {

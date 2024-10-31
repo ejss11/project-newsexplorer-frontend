@@ -16,6 +16,7 @@ function Main({
   isUser,
   isSavedArticle,
   savedArticleData,
+  savedArticles,
 }) {
   // Estado para controlar si se ha hecho una búsqueda
   const [hasSearched, setHasSearched] = useState(true);
@@ -45,6 +46,8 @@ function Main({
           onArticleClick={onArticleClick}
           isSavedArticle={isSavedArticle}
           savedArticleData={savedArticleData}
+          isLoggedIn={isLoggedIn}
+          savedArticles={savedArticles}
         />
       )}
       <About />
